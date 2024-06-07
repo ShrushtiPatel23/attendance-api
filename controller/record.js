@@ -35,14 +35,35 @@ module.exports = {
         console.log(req.admin.id)
         try {
             const result = await Record.find({ userId: userId });
-
+            
             const formattedData = {};
             result.forEach(record => {
-                formattedData[new Date(record.date).toDateString()] = record.status;
+                var date = new Date(record.date).toLocaleDateString('en-US', { 
+                    timeZone: 'UTC',
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                formattedData[new Date(date).toDateString()] = record.status;
             });
 
+            const newdata = [];
+            result.forEach(record => {
+                newdata.push({
+                    _id: record._id,
+                    _userId: record.userId,
+                    date: new Date(record.date).toLocaleDateString('en-US', { 
+                        timeZone: 'UTC',
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    }),
+                    status: record.status
+            })
+            })
+
             return res.status(200).json({
-                data: result,
+                data: newdata,
                 formatDate: formattedData,
             });
 
